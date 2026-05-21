@@ -1,32 +1,36 @@
 ﻿#include "Application.h"
 #include "Console.h"
 
-
-NormalDepartment::NormalDepartment(const std::wstring& id, const std::wstring& name) : Department(id, name), departmentTotalWorkHours(0) {}
-int NormalDepartment::getDepartmentTotalWorkHours() {
-	return departmentTotalWorkHours;
+Employee::Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) : departmentID(_departmentID), employeeID(_employeeID), name(_name), workHours(_workHours) {}
+Employee::Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name) : departmentID(_departmentID), employeeID(_employeeID), name(_name), workHours(0) {}
+std::wstring Employee::getDepartmentID() const { return departmentID; }
+std::wstring Employee::getEmployeeID() const { return employeeID; }
+std::wstring Employee::getName() const { return name; }
+Manage_ Employee::getPosition() const { return position; }
+void Employee::setPosition(Manage_ pos) { position = pos; }
+int Employee::getWorkHours() const { return workHours; }
+std::wstring Employee::getPosition(Manage_ m) {
+	if (m == Manage_NormalEmployee) return L"普通员工";
+	else if (m == Manage_NormalManager) return L"普通经理";
+	else if (m == Manage_SalesEmployee) return L"销售员工";
+	else if (m == Manage_SalesManager) return L"销售经理";
+	else return L"未知职位";
 }
-const std::wstring& Department::getDepartmentID() const { return departmentID; }
-const std::wstring& Department::getDepartmentName() const { return departmentName; }
-void Department::setDepartmentID(const std::wstring& id) { departmentID = id; }
-void Department::setDepartmentName(const std::wstring& name) { departmentName = name; }
-
-SalesDepartment::SalesDepartment(const std::wstring& id, const std::wstring& name) : Department(id, name), salesDepartmentTotalSales(0) {}
-int SalesDepartment::getSalesDepartmentTotalSales() {
-	return salesDepartmentTotalSales;
-}
-
+NormalEmployee::NormalEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) :Employee(_departmentID, _employeeID, _name, _workHours) {};
 double NormalEmployee::calSalary() {
 	return 20 * workHours;
 }
-
+NormalManager::NormalManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) :Employee(_departmentID, _employeeID, _name, _workHours) {};
 double NormalManager::calSalary() {
 	return 10000;
 }
-
+SalesWorker::SalesWorker(int _monthlySales) : monthlySales(_monthlySales) {}
+int SalesWorker::getMonthlySales() { return monthlySales; };
+SalesEmployee::SalesEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales) {}
 double SalesEmployee::calSalary() {
 	return 0.001 * monthlySales;
 }
+SalesManager::SalesManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales), department(nullptr) {}
 double SalesManager::calSalary() {
 	if (department == nullptr) {
 		//TODO: log error here instead of just returning 0
@@ -34,18 +38,26 @@ double SalesManager::calSalary() {
 	}
 	return 5000 + 0.001 * department->getSalesDepartmentTotalSales();
 }
-HRManagementSystem::HRManagementSystem() = default;
+void SalesManager::setSalesDepartment(SalesDepartment* dep) { department = dep; }
+SalesDepartment* SalesManager::getSalesDepartment() const { return department; }
 
-void init(std::vector<std::wstring> options, int& preY, int& logY) {
-	MyConsole::clearScreen();
-	MyConsole::updateBorder(0, 0, options);
-	preY = static_cast<int>(options.size() + 2), logY = 0;
-	if (utf8_width::displayWidth(MyConsole::LOG_s) > 0) {
-		MyConsole::LOG(0, preY - 1);
-		logY = 2;
-	}
-	MyConsole::gotoXY(0, preY + logY);
-}
+Department::Department(const std::wstring& id, const std::wstring& name) : departmentID(id), departmentName(name) {}
+const std::wstring& Department::getDepartmentID() const { return departmentID; }
+const std::wstring& Department::getDepartmentName() const { return departmentName; }
+void Department::setDepartmentID(const std::wstring& id) { departmentID = id; }
+void Department::setDepartmentName(const std::wstring& name) { departmentName = name; }
+
+NormalDepartment::NormalDepartment(const std::wstring& id, const std::wstring& name) : Department(id, name), departmentTotalWorkHours(0) {}
+int NormalDepartment::getDepartmentTotalWorkHours() { return departmentTotalWorkHours; }
+void NormalDepartment::setDepartmentTotalWorkHours(int h) { departmentTotalWorkHours = h; }
+void NormalDepartment::addDepartmentTotalWorkHours(int h) { departmentTotalWorkHours += h; }
+
+SalesDepartment::SalesDepartment(const std::wstring& id, const std::wstring& name) : Department(id, name), salesDepartmentTotalSales(0) {}
+int SalesDepartment::getSalesDepartmentTotalSales() { return salesDepartmentTotalSales; }
+void SalesDepartment::setSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales = s; }
+void SalesDepartment::addSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales += s; }
+
+HRManagementSystem::HRManagementSystem() = default;
 
 void HRManagementSystem::MainLoop() {
 	MyConsole::LOG_s = L"";
@@ -57,7 +69,7 @@ void HRManagementSystem::MainLoop() {
 		L"q.退出"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wcout << L"请选择操作: ";
 		std::wstring option;
 		std::getline(std::wcin >> std::ws, option);
@@ -87,7 +99,7 @@ void HRManagementSystem::DepartmentLoop() {
 		L"q.返回"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wcout << L"请选择操作: ";
 		std::wstring option;
 		std::getline(std::wcin >> std::ws, option);
@@ -114,7 +126,7 @@ void HRManagementSystem::DepartmentAddLoop() {
 		L"部门ID 部门名称 部门类型(1-普通部门,2-销售部门) [回车结束]"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wstring input;
 		try {
 			std::getline(std::wcin, input);
@@ -145,6 +157,7 @@ void HRManagementSystem::DepartmentAddLoop() {
 		break;
 	}
 }
+
 void HRManagementSystem::DepartmentDeleteLoop() {
 	MyConsole::LOG_s = L"";
 	MyConsole::clearScreen();
@@ -171,7 +184,7 @@ void HRManagementSystem::DepartmentDeleteLoop() {
 	}
 	while (true) {
 		int preY, logY;
-		init(lines, preY, logY);
+		MyConsole::init(lines, preY, logY);
 		std::wcout << L"请输入要删除的部门ID: ";
 		std::wstring departmentID;
 		std::getline(std::wcin >> std::ws, departmentID);
@@ -186,6 +199,7 @@ void HRManagementSystem::DepartmentDeleteLoop() {
 		}
 	}
 }
+
 void HRManagementSystem::DepartmentUpdateLoop() {
 	MyConsole::LOG_s = L"";
 	MyConsole::clearScreen();
@@ -204,7 +218,7 @@ void HRManagementSystem::DepartmentUpdateLoop() {
 		// 选择要修改的部门的ID
 		bool done = false;
 		int preY, logY;
-		init(lines, preY, logY);
+		MyConsole::init(lines, preY, logY);
 		std::wcout << L"请输入要修改的部门ID: ";
 		std::wstring oldID;
 		std::getline(std::wcin >> std::ws, oldID);
@@ -233,7 +247,7 @@ void HRManagementSystem::DepartmentUpdateLoop() {
 				L"2. 修改部门名称"
 			};
 			int preY, logY;
-			init(options, preY, logY);
+			MyConsole::init(options, preY, logY);
 			std::wcout << L"请选择要修改的内容: ";
 			std::getline(std::wcin >> std::ws, choice);
 			if (choice == L"q") {
@@ -245,7 +259,7 @@ void HRManagementSystem::DepartmentUpdateLoop() {
 				MyConsole::LOG_s = L"";
 				while (true) {
 					options = { oldIt };
-					init(options, preY, logY);
+					MyConsole::init(options, preY, logY);
 					std::wcout << L"请输入新的部门ID: ";
 					std::wstring newID;
 					std::getline(std::wcin >> std::ws, newID);
@@ -282,7 +296,7 @@ void HRManagementSystem::DepartmentUpdateLoop() {
 				MyConsole::LOG_s = L"";
 				while (true) {
 					options = { oldIt };
-					init(options, preY, logY);
+					MyConsole::init(options, preY, logY);
 					std::wcout << L"请输入新的部门名称: ";
 					std::wstring newName;
 					std::getline(std::wcin >> std::ws, newName);
@@ -325,7 +339,7 @@ void HRManagementSystem::EmployeeLoop() {
 		L"q.返回"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wcout << L"请选择操作: ";
 		std::wstring input;
 		std::getline(std::wcin >> std::ws, input);
@@ -345,6 +359,7 @@ void HRManagementSystem::EmployeeLoop() {
 
 	}
 }
+
 void HRManagementSystem::EmployeeAddLoop() {
 	MyConsole::LOG_s = L"";
 	while (true) {
@@ -357,7 +372,7 @@ void HRManagementSystem::EmployeeAddLoop() {
 			L"4. 销售经理"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wcout << L"请选择要添加的员工类型: ";
 		std::wstring input;
 		std::getline(std::wcin >> std::ws, input);
@@ -403,7 +418,7 @@ void HRManagementSystem::EmployeeAddLoop() {
 		MyConsole::LOG_s = L"";
 		while (true) {
 			// 选择部门
-			init(lines, preY, logY);
+			MyConsole::init(lines, preY, logY);
 			std::wcout << L"请输入所属部门ID: ";
 			std::wstring departmentID;
 			std::getline(std::wcin >> std::ws, departmentID);
@@ -442,7 +457,7 @@ void HRManagementSystem::EmployeeAddLoop() {
 						L"员工ID 员工姓名 月销售额"
 					};
 				}
-				init(employeeInputTip, preY, logY);
+				MyConsole::init(employeeInputTip, preY, logY);
 				std::wcout << L"请输入员工信息: ";
 				std::wstring employeeInput;
 				std::getline(std::wcin >> std::ws, employeeInput);
@@ -569,6 +584,7 @@ void HRManagementSystem::EmployeeAddLoop() {
 	}
 
 }
+
 void HRManagementSystem::EmployeeDeleteLoop() {
 	MyConsole::LOG_s = L"";
 	MyConsole::clearScreen();
@@ -600,7 +616,7 @@ void HRManagementSystem::EmployeeDeleteLoop() {
 	std::sort(lines.begin(), lines.end());
 	while (true) {
 		int preY, logY;
-		init(lines, preY, logY);
+		MyConsole::init(lines, preY, logY);
 		std::wcout << L"请输入要删除的员工ID: ";
 		std::wstring employeeID;
 		std::getline(std::wcin >> std::ws, employeeID);
@@ -615,6 +631,7 @@ void HRManagementSystem::EmployeeDeleteLoop() {
 		}
 	}
 }
+
 void HRManagementSystem::EmployeeUpdateLoop() {
 	MyConsole::LOG_s = L"";
 	MyConsole::clearScreen();
@@ -773,7 +790,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 	while (true) {
 		bool done = false;
 		int preY, logY;
-		init(lines, preY, logY);
+		MyConsole::init(lines, preY, logY);
 		std::wcout << L"请输入要修改的员工ID: ";
 		std::wstring oldID;
 		std::getline(std::wcin >> std::ws, oldID);
@@ -801,7 +818,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 				L"4. 修改所属部门",
 				L"5. 修改工时/销售额"
 			};
-			init(options, preY, logY);
+			MyConsole::init(options, preY, logY);
 			std::wcout << L"请选择要修改的内容: ";
 			std::wstring choice;
 			std::getline(std::wcin >> std::ws, choice);
@@ -813,7 +830,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 				MyConsole::LOG_s = L"";
 				while (true) {
 					options = { oldIt };
-					init(options, preY, logY);
+					MyConsole::init(options, preY, logY);
 					std::wcout << L"请输入新的员工ID: ";
 					std::wstring newID;
 					std::getline(std::wcin >> std::ws, newID);
@@ -839,7 +856,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 				MyConsole::LOG_s = L"";
 				while (true) {
 					options = { oldIt };
-					init(options, preY, logY);
+					MyConsole::init(options, preY, logY);
 					std::wcout << L"请输入新的员工姓名: ";
 					std::wstring newName;
 					std::getline(std::wcin >> std::ws, newName);
@@ -874,7 +891,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 							L"2. 销售经理"
 						};
 					}
-					init(positionOptions, preY, logY);
+					MyConsole::init(positionOptions, preY, logY);
 					std::wcout << L"请选择新的职位: ";
 					std::wstring newPositionInput;
 					std::getline(std::wcin >> std::ws, newPositionInput);
@@ -920,7 +937,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 					}
 				}
 				while (true) {
-					init(departmentLines, preY, logY);
+					MyConsole::init(departmentLines, preY, logY);
 					std::wcout << L"请输入新的所属部门ID: ";
 					std::wstring newDepartmentID;
 					std::getline(std::wcin >> std::ws, newDepartmentID);
@@ -946,7 +963,7 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 				MyConsole::LOG_s = L"";
 				while (true) {
 					options = { oldIt };
-					init(options, preY, logY);
+					MyConsole::init(options, preY, logY);
 					if (isNormalPosition(position)) {
 						std::wcout << L"请输入新的工作时长: ";
 					} else {
@@ -979,36 +996,6 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 	}
 }
 
-void HRManagementSystem::QueryLoop() {
-	MyConsole::LOG_s = L"";
-	while (true) {
-		std::vector<std::wstring>options = {
-		L"1.查询员工",
-		L"2.查询部门",
-		L"q.返回"
-		};
-		int preY, logY;
-		init(options, preY, logY);
-		std::wstring input;
-		std::getline(std::wcin >> std::ws, input);
-		if (input == L"q") {
-			MyConsole::LOG_s = L"";
-			return;
-		} else if (input == L"1") {
-			HRManagementSystem::QueryEmployeeLoop();
-		} else if (input == L"2") {
-			HRManagementSystem::QueryDepartmentLoop();
-		} else {
-			MyConsole::LOG_s = L"请输入1-3";
-			continue;
-		}
-	}
-}
-void HRManagementSystem::QueryEmployeeLoop() {
-}
-void HRManagementSystem::QueryDepartmentLoop() {
-}
-
 void HRManagementSystem::StatisticsLoop() {
 	MyConsole::LOG_s = L"";
 	std::string option;
@@ -1018,7 +1005,7 @@ void HRManagementSystem::StatisticsLoop() {
 			L"q.返回"
 		};
 		int preY, logY;
-		init(options, preY, logY);
+		MyConsole::init(options, preY, logY);
 		std::wstring input;
 		std::getline(std::wcin >> std::ws, input);
 		if (input == L"q") {
@@ -1032,6 +1019,7 @@ void HRManagementSystem::StatisticsLoop() {
 		}
 	}
 }
+
 void HRManagementSystem::StatisticsAllLoop() {
 	MyConsole::LOG_s = L"";
 	auto formatMoney = [](double x) -> std::wstring {
@@ -1169,13 +1157,14 @@ void HRManagementSystem::StatisticsAllLoop() {
 		lines.push_back(L"暂无部门数据");
 	}
 	int preY, logY;
-	init(lines, preY, logY);
+	MyConsole::init(lines, preY, logY);
 	std::wcout << L"按回车返回...";
 	MyConsole::ClearInputLine();
 	std::wstring dummy;
 	std::getline(std::wcin, dummy);
 	MyConsole::LOG_s = L"";
 }
+
 void HRManagementSystem::Exit() {
 	MyConsole::clearScreen();
 	MyConsole::MyPrint(L"谢谢使用，再见！");

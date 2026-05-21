@@ -176,6 +176,16 @@ namespace MyConsole {
 		std::wcin.clear();
 		std::wcin.ignore((std::numeric_limits<std::streamsize>::max)(), L'\n');
 	}
+	void init(const std::vector<std::wstring>& options, int& preY, int& logY) {
+		MyConsole::clearScreen();
+		MyConsole::updateBorder(0, 0, options);
+		preY = static_cast<int>(options.size() + 2), logY = 0;
+		if (utf8_width::displayWidth(MyConsole::LOG_s) > 0) {
+			MyConsole::LOG(0, preY - 1);
+			logY = 2;
+		}
+		MyConsole::gotoXY(0, preY + logY);
+	}
 }
 namespace utf8_width {
 	static bool in(uint32_t x, uint32_t l, uint32_t r) {

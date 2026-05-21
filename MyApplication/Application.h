@@ -13,14 +13,6 @@ class NormalDepartment;
 class SalesDepartment;
 class HRManagementSystem;
 
-//// 菜单高度
-//enum MenuHeight {
-//	MenuHeight_MainMenu = 5,
-//	MenuHeight_DepartmentMenu = 4,
-//	MenuHeight_EmployeeMenu = 4,
-//	MenuHeight_QueryMenu = 3,
-//	MenuHeight_StatisticsMenu = 2
-//};
 // 职位
 enum Manage_ {
 	Manage_NormalEmployee = 1,
@@ -29,39 +21,6 @@ enum Manage_ {
 	Manage_SalesManager = 4,
 	Manage_Other = 5
 };
-//// 主菜单选项
-//enum MainMenuOptions {
-//	MainMenuOptions_Department = 1,
-//	MainMenuOptions_Employee = 2,
-//	MainMenuOptions_Query = 3,
-//	MainMenuOptions_Statistics = 4,
-//	MainMenuOptions_EXIT = 5
-//};
-//// 部门管理菜单选项
-//enum DepartmentMenuOptions {
-//	DepartmentMenuOptions_AddDepartment = 1,
-//	DepartmentMenuOptions_DeleteDepartment = 2,
-//	DepartmentMenuOptions_UpdateDepartment = 3,
-//	DepartmentMenuOptions_Return = 4
-//};
-//// 人员管理菜单选项
-//enum EmployeeMenuOptions {
-//	EmployeeMenuOptions_AddEmployee = 1,
-//	EmployeeMenuOptions_DeleteEmployee = 2,
-//	EmployeeMenuOptions_UpdateEmployee = 3,
-//	EmployeeMenuOptions_Return = 4
-//};
-//// 信息查询菜单选项
-//enum QueryMenuOptions {
-//	QueryMenuOptions_QueryEmployee = 1,
-//	QueryMenuOptions_QueryDepartment = 2,
-//	QueryMenuOptions_Return = 3
-//};
-//// 信息统计菜单选项
-//enum StatisticsMenuOptions {
-//	StatisticsMenuOptions_All = 1,
-//	StatisticsMenuOptions_Return = 2
-//};
 // 员工基类
 class Employee {
 protected:
@@ -78,58 +37,51 @@ protected:
 	// 计算工资的纯虚函数
 	virtual double  calSalary() = 0;
 public:
-	Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) : departmentID(_departmentID), employeeID(_employeeID), name(_name), workHours(_workHours) {}
-	Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name) : departmentID(_departmentID), employeeID(_employeeID), name(_name), workHours(0) {}
-
-	std::wstring getDepartmentID() const { return departmentID; }
-	std::wstring getEmployeeID() const { return employeeID; }
-	std::wstring getName() const { return name; }
-	Manage_ getPosition() const { return position; }
-	void setPosition(Manage_ pos) { position = pos; }
-	int getWorkHours() const { return workHours; }
-	static std::wstring getPosition(Manage_ m) {
-		if (m == Manage_NormalEmployee) return L"普通员工";
-		else if (m == Manage_NormalManager) return L"普通经理";
-		else if (m == Manage_SalesEmployee) return L"销售员工";
-		else if (m == Manage_SalesManager) return L"销售经理";
-		else return L"未知职位";
-	}
+	Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours);
+	Employee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name);
+	std::wstring getDepartmentID() const;
+	std::wstring getEmployeeID() const;
+	std::wstring getName() const;
+	Manage_ getPosition() const;
+	void setPosition(Manage_ pos);
+	int getWorkHours() const;
+	static std::wstring getPosition(Manage_ m);
 };
 // 普通员工类
 class NormalEmployee : public Employee {
 public:
-	NormalEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) :Employee(_departmentID, _employeeID, _name, _workHours) {};
+	NormalEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours);
 	double  calSalary() override;
 };
 // 普通经理类
 class NormalManager : public Employee {
 public:
+	NormalManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours);
 	double  calSalary() override;
-	NormalManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _workHours) :Employee(_departmentID, _employeeID, _name, _workHours) {};
 };
 // 销售类
 class SalesWorker {
 protected:
 	int  monthlySales;
 public:
-	SalesWorker(int _monthlySales) : monthlySales(_monthlySales) {}
-	int getMonthlySales() { return monthlySales; };
+	SalesWorker(int _monthlySales);
+	int getMonthlySales();
 };
 // 销售员工类
 class SalesEmployee : public Employee, public SalesWorker {
 public:
+	SalesEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales);
 	double calSalary() override;
-	SalesEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales) {}
 };
 // 销售经理类
 class SalesManager : public Employee, public SalesWorker {
 	// 指向所属销售部门的指针
 	SalesDepartment* department;
 public:
+	SalesManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales);
 	double calSalary() override;
-	SalesManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales), department(nullptr) {}
-	void setSalesDepartment(SalesDepartment* dep) { department = dep; }
-	SalesDepartment* getSalesDepartment() const { return department; }
+	void setSalesDepartment(SalesDepartment* dep);
+	SalesDepartment* getSalesDepartment() const;
 };
 
 // 部门基类
@@ -140,10 +92,9 @@ private:
 	// 部门名称
 	std::wstring departmentName;
 public:
-	Department(const std::wstring& id, const std::wstring& name) : departmentID(id), departmentName(name) {}
+	Department(const std::wstring& id, const std::wstring& name);
 	const std::wstring& getDepartmentID() const;
 	const std::wstring& getDepartmentName() const;
-	const std::wstring& getDepartmentManagerID() const;
 	void setDepartmentID(const std::wstring& id);
 	void setDepartmentName(const std::wstring& name);
 };
@@ -156,8 +107,8 @@ public:
 	NormalDepartment(const std::wstring& id, const std::wstring& name);
 	// 获取部门总工作小时数
 	int getDepartmentTotalWorkHours();
-	void setDepartmentTotalWorkHours(int h) { departmentTotalWorkHours = h; }
-	void addDepartmentTotalWorkHours(int h) { departmentTotalWorkHours += h; }
+	void setDepartmentTotalWorkHours(int h);
+	void addDepartmentTotalWorkHours(int h);
 
 };
 // 销售部门
@@ -169,9 +120,8 @@ public:
 	SalesDepartment(const std::wstring& id, const std::wstring& name);
 	// 获取销售部门总销售额
 	int	getSalesDepartmentTotalSales();
-	void setSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales = s; }
-	void addSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales += s; }
-
+	void setSalesDepartmentTotalSales(int s);
+	void addSalesDepartmentTotalSales(int s);
 };
 
 // 人力资源管理系统
@@ -195,12 +145,6 @@ public:
 	void EmployeeAddLoop();
 	void EmployeeDeleteLoop();
 	void EmployeeUpdateLoop();
-	// 废弃
-	void QueryLoop();
-	// 废弃
-	void QueryEmployeeLoop();
-	// 废弃
-	void QueryDepartmentLoop();
 	void StatisticsLoop();
 	void StatisticsAllLoop();
 	void Exit();

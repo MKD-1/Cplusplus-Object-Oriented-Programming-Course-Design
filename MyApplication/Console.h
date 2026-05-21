@@ -48,6 +48,9 @@ namespace MyConsole {
 
 	// 清除缓冲区输入|清除控制台输入缓冲区中的所有字符
 	void ClearInputLine();
+
+	// 初始输出函数
+	void init(const std::vector<std::wstring>& options, int& preY, int& logY);
 }
 namespace utf8_width {
 
