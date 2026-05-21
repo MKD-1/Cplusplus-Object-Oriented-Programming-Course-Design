@@ -1,9 +1,7 @@
 ﻿#pragma once
 #include "Auto.h"
 
-namespace MyWindows {
-	void RenderUI();
-}
+
 class Employee;
 class NormalEmployee;
 class NormalManager;
@@ -139,8 +137,6 @@ private:
 	std::wstring	departmentID;
 	// 部门名称
 	std::wstring departmentName;
-	// 部门经理ID
-	std::wstring departmentManagerID;
 public:
 	Department(const std::wstring& id, const std::wstring& name) : departmentID(id), departmentName(name), departmentManagerID(L"") {}
 	const std::wstring& getDepartmentID() const;

@@ -1,24 +1,6 @@
 ﻿#include "Application.h"
 #include "Console.h"
 
-namespace MyWindows {
-	void RenderUI() {
-		static bool windows_open = true;
-		static float dragfloat = 0.0f;
-		if (windows_open) {
-			ImGui::Begin(u8"window 窗口", &windows_open);
-			ImGui::DragFloat(u8"拖动浮点数", &dragfloat, 0.01f, 0.0f, 10.0f);
-			ImGui::SliderFloat(u8"滑动浮点数", &dragfloat, 0.0f, 20.0f);
-			ImGui::GetForegroundDrawList()->AddLine(ImVec2(0, 0), ImVec2(300, 300), IM_COL32(0, 245, 255, 255), 10.0f);
-
-		} else {
-			return;
-		}
-
-		ImGui::End();
-	}
-}
-
 
 NormalDepartment::NormalDepartment(const std::wstring& id, const std::wstring& name) : Department(id, name), departmentTotalWorkHours(0) {}
 int NormalDepartment::getDepartmentTotalWorkHours() {
@@ -1039,6 +1021,9 @@ void HRManagementSystem::EmployeeUpdateLoop() {
 					int newPositionNumber = 0;
 					try {
 						newPositionNumber = std::stoi(newPositionInput);
+						if(newPositionNumber != 1 && newPositionNumber != 2) {
+							throw std::invalid_argument("输入必须为1或2");
+						}
 					} catch (...) {
 						MyConsole::LOG_s = L"请输入1或2";
 						continue;
