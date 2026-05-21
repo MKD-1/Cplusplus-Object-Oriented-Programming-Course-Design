@@ -13,14 +13,14 @@ class NormalDepartment;
 class SalesDepartment;
 class HRManagementSystem;
 
-// 菜单高度
-enum MenuHeight {
-	MenuHeight_MainMenu = 5,
-	MenuHeight_DepartmentMenu = 4,
-	MenuHeight_EmployeeMenu = 4,
-	MenuHeight_QueryMenu = 3,
-	MenuHeight_StatisticsMenu = 2
-};
+//// 菜单高度
+//enum MenuHeight {
+//	MenuHeight_MainMenu = 5,
+//	MenuHeight_DepartmentMenu = 4,
+//	MenuHeight_EmployeeMenu = 4,
+//	MenuHeight_QueryMenu = 3,
+//	MenuHeight_StatisticsMenu = 2
+//};
 // 职位
 enum Manage_ {
 	Manage_NormalEmployee = 1,
@@ -29,39 +29,39 @@ enum Manage_ {
 	Manage_SalesManager = 4,
 	Manage_Other = 5
 };
-// 主菜单选项
-enum MainMenuOptions {
-	MainMenuOptions_Department = 1,
-	MainMenuOptions_Employee = 2,
-	MainMenuOptions_Query = 3,
-	MainMenuOptions_Statistics = 4,
-	MainMenuOptions_EXIT = 5
-};
-// 部门管理菜单选项
-enum DepartmentMenuOptions {
-	DepartmentMenuOptions_AddDepartment = 1,
-	DepartmentMenuOptions_DeleteDepartment = 2,
-	DepartmentMenuOptions_UpdateDepartment = 3,
-	DepartmentMenuOptions_Return = 4
-};
-// 人员管理菜单选项
-enum EmployeeMenuOptions {
-	EmployeeMenuOptions_AddEmployee = 1,
-	EmployeeMenuOptions_DeleteEmployee = 2,
-	EmployeeMenuOptions_UpdateEmployee = 3,
-	EmployeeMenuOptions_Return = 4
-};
-// 信息查询菜单选项
-enum QueryMenuOptions {
-	QueryMenuOptions_QueryEmployee = 1,
-	QueryMenuOptions_QueryDepartment = 2,
-	QueryMenuOptions_Return = 3
-};
-// 信息统计菜单选项
-enum StatisticsMenuOptions {
-	StatisticsMenuOptions_All = 1,
-	StatisticsMenuOptions_Return = 2
-};
+//// 主菜单选项
+//enum MainMenuOptions {
+//	MainMenuOptions_Department = 1,
+//	MainMenuOptions_Employee = 2,
+//	MainMenuOptions_Query = 3,
+//	MainMenuOptions_Statistics = 4,
+//	MainMenuOptions_EXIT = 5
+//};
+//// 部门管理菜单选项
+//enum DepartmentMenuOptions {
+//	DepartmentMenuOptions_AddDepartment = 1,
+//	DepartmentMenuOptions_DeleteDepartment = 2,
+//	DepartmentMenuOptions_UpdateDepartment = 3,
+//	DepartmentMenuOptions_Return = 4
+//};
+//// 人员管理菜单选项
+//enum EmployeeMenuOptions {
+//	EmployeeMenuOptions_AddEmployee = 1,
+//	EmployeeMenuOptions_DeleteEmployee = 2,
+//	EmployeeMenuOptions_UpdateEmployee = 3,
+//	EmployeeMenuOptions_Return = 4
+//};
+//// 信息查询菜单选项
+//enum QueryMenuOptions {
+//	QueryMenuOptions_QueryEmployee = 1,
+//	QueryMenuOptions_QueryDepartment = 2,
+//	QueryMenuOptions_Return = 3
+//};
+//// 信息统计菜单选项
+//enum StatisticsMenuOptions {
+//	StatisticsMenuOptions_All = 1,
+//	StatisticsMenuOptions_Return = 2
+//};
 // 员工基类
 class Employee {
 protected:
@@ -72,7 +72,7 @@ protected:
 	// 员工姓名
 	std::wstring name;
 	// 职位
-	Manage_ position = Manage_Other; 
+	Manage_ position = Manage_Other;
 	// 工作小时数
 	int  workHours;
 	// 计算工资的纯虚函数
@@ -110,7 +110,7 @@ public:
 // 销售类
 class SalesWorker {
 protected:
-	double  monthlySales;
+	int  monthlySales;
 public:
 	SalesWorker(int _monthlySales) : monthlySales(_monthlySales) {}
 	int getMonthlySales() { return monthlySales; };
@@ -128,6 +128,8 @@ class SalesManager : public Employee, public SalesWorker {
 public:
 	double calSalary() override;
 	SalesManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales), department(nullptr) {}
+	void setSalesDepartment(SalesDepartment* dep) { department = dep; }
+	SalesDepartment* getSalesDepartment() const { return department; }
 };
 
 // 部门基类
@@ -138,7 +140,7 @@ private:
 	// 部门名称
 	std::wstring departmentName;
 public:
-	Department(const std::wstring& id, const std::wstring& name) : departmentID(id), departmentName(name), departmentManagerID(L"") {}
+	Department(const std::wstring& id, const std::wstring& name) : departmentID(id), departmentName(name) {}
 	const std::wstring& getDepartmentID() const;
 	const std::wstring& getDepartmentName() const;
 	const std::wstring& getDepartmentManagerID() const;
@@ -154,6 +156,9 @@ public:
 	NormalDepartment(const std::wstring& id, const std::wstring& name);
 	// 获取部门总工作小时数
 	int getDepartmentTotalWorkHours();
+	void setDepartmentTotalWorkHours(int h) { departmentTotalWorkHours = h; }
+	void addDepartmentTotalWorkHours(int h) { departmentTotalWorkHours += h; }
+
 };
 // 销售部门
 class SalesDepartment :public Department {
@@ -164,6 +169,9 @@ public:
 	SalesDepartment(const std::wstring& id, const std::wstring& name);
 	// 获取销售部门总销售额
 	int	getSalesDepartmentTotalSales();
+	void setSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales = s; }
+	void addSalesDepartmentTotalSales(int s) { salesDepartmentTotalSales += s; }
+
 };
 
 // 人力资源管理系统
@@ -178,28 +186,22 @@ private:
 	std::unordered_map<std::wstring, std::unique_ptr<SalesManager>> salesManagers;
 public:
 	HRManagementSystem();
-	void MainMenu();
 	void MainLoop();
-	void DepartmentMenu();
 	void DepartmentLoop();
-	void DepartmentAddMenu();
 	void DepartmentAddLoop();
 	void DepartmentDeleteLoop();
 	void DepartmentUpdateLoop();
-	void EmployeeMenu();
 	void EmployeeLoop();
 	void EmployeeAddLoop();
 	void EmployeeDeleteLoop();
 	void EmployeeUpdateLoop();
-	void QueryMenu();
+	// 废弃
 	void QueryLoop();
-	void QueryEmployeeMenu();
+	// 废弃
 	void QueryEmployeeLoop();
-	void QueryDepartmentMenu();
+	// 废弃
 	void QueryDepartmentLoop();
-	void StatisticsMenu();
 	void StatisticsLoop();
-	void StatisticsAllMenu();
 	void StatisticsAllLoop();
 	void Exit();
 };
