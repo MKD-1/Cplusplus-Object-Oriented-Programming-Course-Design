@@ -28,7 +28,7 @@ SalesWorker::SalesWorker(int _monthlySales) : monthlySales(_monthlySales) {}
 int SalesWorker::getMonthlySales() { return monthlySales; };
 SalesEmployee::SalesEmployee(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales) {}
 double SalesEmployee::calSalary() {
-	return 0.001 * monthlySales;
+	return 0.005 * monthlySales;
 }
 SalesManager::SalesManager(std::wstring _departmentID, std::wstring _employeeID, std::wstring _name, int _monthlySales) :Employee(_departmentID, _employeeID, _name), SalesWorker(_monthlySales), department(nullptr) {}
 double SalesManager::calSalary() {
